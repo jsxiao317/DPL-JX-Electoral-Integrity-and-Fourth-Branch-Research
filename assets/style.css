@@ -1,28 +1,36 @@
-:root{
-  --bg:#ffffff;
-  --muted:#6b7280;
-  --accent:#0f172a;
-  --accent-2:#0ea5a0;
-  --container:1000px;
-  --max-width:780px;
-  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Segoe UI Mono", monospace;
-}
-*{box-sizing:border-box}
-body{
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  color:var(--accent);
-  margin:0;
-  background:var(--bg);
-  line-height:1.6;
-}
-.container{max-width:var(--container);margin:0 auto;padding:1rem}
-.site-header{background:linear-gradient(90deg,#eef2ff,#f8fafc);padding:1rem;border-bottom:1px solid #e6e9ef}
-.site-header h1{margin:0;font-size:1.25rem}
-.meta{color:var(--muted);margin-top:0.35rem}
-.actions{display:flex;gap:0.5rem}
-.paper{max-width:var(--max-width);margin:0 auto;padding:1rem;background:transparent}
-.paper h1,h2,h3{margin-top:1.1rem}
-a{color:var(--accent-2)}
-.muted{color:var(--muted)}
-.site-footer{border-top:1px solid #eef2ff;background:#fbfdff;padding:1rem 0;margin-top:2rem;color:var(--muted);font-size:0.95rem}
-@media (max-width:900px){.container{padding:0.75rem}}
+// Simple renderer for paper.html: fetch paper.md and render with marked
+(async function(){
+  const paperEl = document.getElementById('paper');
+  const loading = document.getElementById('paper-loading');
+
+  async function loadMarkdown(file='paper.md'){
+    try{
+      loading && (loading.textContent = `Loading ${file}...`);
+      const res = await fetch(file);
+      if(!res.ok) throw new Error(`Failed to fetch ${file}: ${res.status}`);
+      const md = await res.text();
+      renderMarkdown(md);
+      loading && loading.remove();
+    }catch(err){
+      console.error('Error loading markdown:', err);
+      paperEl.innerHTML = `<p class="muted">Could not load paper content. Ensure <code>${file}</code> exists and the site is served over HTTP(S). Error: ${err.message}</p>`;
+    }
+  }
+
+  function renderMarkdown(md){
+    if(typeof marked === 'undefined'){
+      paperEl.innerHTML = '<p class="muted">Markdown renderer not available. Ensure marked.js is accessible (CDN or assets/marked.min.js).</p>';
+      console.error('marked is undefined; cannot render markdown.');
+      return;
+    }
+    try{
+      const html = marked.parse(md);
+      paperEl.innerHTML = html;
+    }catch(e){
+      console.error('marked parse error:', e);
+      paperEl.innerHTML = '<p class="muted">An error occurred while rendering the manuscript. See console for details.</p>';
+    }
+  }
+
+  await loadMarkdown('paper.md');
+})();
