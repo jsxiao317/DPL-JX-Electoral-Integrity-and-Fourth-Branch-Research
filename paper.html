@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Working Paper — Electoral Integrity and the Fourth Branch</title>
+  <meta name="description" content="Working paper rendered from paper.md" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1 id="paper-title">Working Paper</h1>
+      <p class="meta">Electoral Integrity and the Fourth Branch</p>
+      <p><a href="index.html">← About</a></p>
+    </div>
+  </header>
+
+  <main class="container">
+    <article id="paper" class="paper">
+      <div id="paper-loading">Loading paper...</div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p class="muted">Rendered from <code>paper.md</code>. For issues: open a GitHub Issue in this repository.</p>
+    </div>
+  </footer>
+
+  <!-- marked from CDN, with a local fallback attempt -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    if (typeof marked === 'undefined') {
+      console.warn('marked not available from CDN — attempting local fallback assets/marked.min.js');
+      var s = document.createElement('script');
+      s.src = 'assets/marked.min.js';
+      s.onerror = function(){ console.error('Local fallback assets/marked.min.js not found; markdown will not render.'); };
+      document.head.appendChild(s);
+    }
+  </script>
+  <script src="assets/script.js"></script>
+</body>
+</html>
