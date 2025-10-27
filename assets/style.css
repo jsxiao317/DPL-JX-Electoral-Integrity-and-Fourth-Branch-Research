@@ -93,7 +93,7 @@ main{
   background:transparent;
 }
 
-.paper h2{Margin-top:1.1rem}
+.paper h2{margin-top:1.1rem}
 .paper img, .paper iframe, .paper object{max-width:100%}
 
 .citation-block{
