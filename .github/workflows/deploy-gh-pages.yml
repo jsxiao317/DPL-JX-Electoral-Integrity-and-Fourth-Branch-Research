@@ -1,0 +1,27 @@
+name: Deploy site to gh-pages
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # (Optional) Build step goes here if you have a build; for this static repo nothing is required
+      - name: Build (no-op)
+        run: echo "No build step for static site"
+
+      # Deploy the repository root to gh-pages
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          publish_branch: gh-pages
