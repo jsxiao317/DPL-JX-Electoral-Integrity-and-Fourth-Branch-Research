@@ -1,4 +1,5 @@
 // Minimal client-side logic to fetch and render markdown, build TOC, and enable citation modal + copy.
+// This version includes clearer error messages and a graceful fallback if marked is unavailable.
 (async function(){
   const paperEl = document.getElementById('paper');
   const loading = document.getElementById('paper-loading');
@@ -20,27 +21,33 @@
       buildTOC(md);
       loading && loading.remove();
     }catch(err){
-      paperEl.innerHTML = `<p class="muted">Could not load paper content. Check that <code>${file}</code> exists in the repository root. Error: ${err.message}</p>`;
+      console.error('Error loading markdown:', err);
+      paperEl.innerHTML = `<p class="muted">Could not load paper content. Check that <code>${file}</code> exists in the repository root and that the site is served over HTTP(S). Error: ${err.message}</p>`;
     }
   }
 
   function renderMarkdown(md){
-    // Use marked (loaded via CDN)
+    // Use marked (loaded via CDN or local fallback)
     if(typeof marked === 'undefined'){
-      paperEl.innerHTML = '<p class="muted">Markdown renderer not available. Please include marked.js</p>';
+      paperEl.innerHTML = '<p class="muted">Markdown renderer not available. Please ensure marked.js is loaded (CDN or assets/marked.min.js).</p>';
+      console.error('marked is undefined: markdown cannot be rendered.');
       return;
     }
-    const html = marked.parse(md);
-    paperEl.innerHTML = html;
-    // Add anchors to headings for TOC linking
-    document.querySelectorAll('#paper h1, #paper h2, #paper h3').forEach(h=>{
-      if(!h.id) h.id = h.textContent.trim().toLowerCase().replace(/\s+/g,'-').replace(/[^\w\-]/g,'');
-    });
+    try{
+      const html = marked.parse(md);
+      paperEl.innerHTML = html;
+      // Add anchors to headings for TOC linking
+      document.querySelectorAll('#paper h1, #paper h2, #paper h3').forEach(h=>{
+        if(!h.id) h.id = h.textContent.trim().toLowerCase().replace(/\s+/g,'-').replace(/[^\w\-]/g,'');
+      });
+    }catch(e){
+      console.error('Error parsing markdown with marked:', e);
+      paperEl.innerHTML = `<p class="muted">An error occurred while rendering the manuscript. Check console for details.</p>`;
+    }
   }
 
   function buildTOC(md){
     tocList.innerHTML = '';
-    // Simple approach: extract lines starting with ## or ### for a basic TOC
     const lines = md.split('\n');
     const items = [];
     for(const line of lines){
@@ -83,18 +90,19 @@
     if(e.target === modal) modal.setAttribute('aria-hidden','true');
   });
 
-  copyBib.addEventListener('click', async()=>{
+  copyBib && copyBib.addEventListener('click', async()=>{
     const bib = document.getElementById('citation-bibtex').textContent;
     try{
       await navigator.clipboard.writeText(bib);
       copyBib.textContent = 'Copied!';
       setTimeout(()=> copyBib.textContent = 'Copy BibTeX', 1500);
     }catch(e){
+      console.warn('Clipboard write failed:', e);
       alert('Could not copy to clipboard. Please copy manually.');
     }
   });
 
-  downloadBib.addEventListener('click', ()=>{
+  downloadBib && downloadBib.addEventListener('click', ()=>{
     const bib = document.getElementById('citation-bibtex').textContent;
     const blob = new Blob([bib], {type:'text/plain'});
     const url = URL.createObjectURL(blob);
