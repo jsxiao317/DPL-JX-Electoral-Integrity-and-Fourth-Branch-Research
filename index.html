@@ -65,7 +65,26 @@
     </div>
   </footer>
 
+  <!-- Primary CDN for marked, with a small fallback loader that tries to load a local copy if the CDN fails -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    // If marked didn't load from CDN, dynamically load a local copy (assets/marked.min.js) if present.
+    if (typeof marked === 'undefined') {
+      console.warn('marked not found on CDN, attempting to load local assets/marked.min.js');
+      var s = document.createElement('script');
+      s.src = 'assets/marked.min.js';
+      s.onload = function(){ console.info('Loaded local marked.min.js'); };
+      s.onerror = function(){ console.error('Failed to load local marked.min.js. Markdown rendering will not work.'); };
+      document.head.appendChild(s);
+    }
+  </script>
+
+  <noscript>
+    <div style="padding:1rem;background:#fff5f5;border:1px solid #ffe4e6;margin:1rem;border-radius:6px;">
+      This page requires JavaScript to render the manuscript. Please enable JavaScript or download paper.pdf from the repository root.
+    </div>
+  </noscript>
+
   <script src="assets/script.js"></script>
 </body>
 </html>
