@@ -31,9 +31,11 @@ Equally, we normatively contend that an acting ‘fourth branch’, responsible 
 ## 2. Theory and Hypotheses
 
 Hypothesis 1 – Supply-Side - Prevention of electoral fraud – outright measure
+
 *We hypothesise that an independent election administration operating as a ‘fourth branch’ of government, alongside the executive, legislative and the judiciary, reduces the frequency and susceptibility of elections to fraud.*
 
 Hypothesis 2 – Demand-Side - Legitimacy – ripple & extended measures
+
 *We hypothesise that a transparent and secure election mechanisms, enabled by the aforementioned ‘fourth branch’, will restore public trust in electoral legitimacy, thereby barring the effectiveness of fraudulent claims by popular opportunists on the public and measurably increasing acceptance of results.*
 
 
