@@ -20,6 +20,7 @@ This study uses observational, cross-national data from Varieties of Democracy (
 ---
 
 ## 1. Introduction
+The dawn of populism amid the polarised twenty-first century has heralded two distinct threats to electoral integrity in liberal democracies: direct procedural manipulation and post-election contestation via weaponising false fraud claims. The latter, evident in recent U.S. and Brazilian elections, characterises the delegitimisation of elections by populist actors who exploit the vulnerabilities of the tripartite branches (legislative, executive, judiciary) – the lack of depoliticised institutions to verify electoral results. Addressing symptoms of its structural and adjudicative limits, this paper advances a ‘fourth branch’ institutional theory as a remedy. 
 
 Our paper posits that the institutionalisation of electoral integrity means as a functionally equivalent ‘fourth branch’ of government measurably depresses electoral fraud, cements legitimacy and conduces higher voter acceptance of election results. Conceptualised and taxonomised by Tushnet (2020) and Ackerman (2000), our ‘fourth branch’ synthesises Pal’s (2016) institutionalisation of electoral management bodies (EMBs) with Norris’s (2015) electoral cycle integrity theory to propose a constitutionally-sourced, publicly-anchored institution. It is continuous, transparent and autonomous from government – dedicated to preserving electoral integrity. 
 
@@ -27,7 +28,7 @@ Responding to prior 'demand-side gaps', we assert that the institutional framewo
 
 Equally, we normatively contend that an acting ‘fourth branch’, responsible for securing electoral integrity mechanisms, is foundationally crucial to the future function of liberal democracies. We cite the Bolivian Election of 2019 and 2025 and its parallels to the US 2020 Presidential Election, among other comparative scenarios in this paper, to evidence our prescription of a nuanced ‘fourth branch’ constitutional design. Indeed, this paper postulates and explores how an independent, civil, non-governmentally bound and nonpartisan institution reinforces the supply-side and demand-side empirical framework established.
 
-
+To further our research, we are in contact with Bolivian electoral management NGOs, in light of the 2025 election, to provide qualitative evaluation to our hypotheses.
 
 ## 2. Theory and Hypotheses
 
