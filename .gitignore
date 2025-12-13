@@ -1,2 +1,13 @@
+# Raw data
+data/raw/
+
+# Large CSVs
+*.csv
+
+# R junk
+.Rhistory
+.RData
+.Rproj.user/
+
+# OS files
 .DS_Store
-node_modules/
