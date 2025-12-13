@@ -41,31 +41,31 @@ Hypothesis 2 – Demand-Side - Legitimacy – ripple & extended measures
 *We hypothesise that a transparent and secure election mechanisms, enabled by the aforementioned ‘fourth branch’, will restore public trust in electoral legitimacy, thereby barring the effectiveness of fraudulent claims by popular opportunists on the public and measurably increasing acceptance of results.*
 
 
-### 2.1. Mechanism A
+### 2.1. Supply-Side Mechanism
 
 
 
-### 2.2. Mechanism B
+### 2.2. Demand-Side Mechanism
 
+## 3. Literature Review
 
-
-## 3. Data
+## 4. Data
 
 Describe datasets, data collection, reliability, and any codebook references.
 
-## 4. Empirical Strategy / Methods
+## 5. Empirical Strategy / Methodology
 
 Explain models, identification, robustness checks, and pre-analysis plan if applicable.
 
-## 5. Results
+## 6. Results
 
 Report primary results, tables, and robustness checks. Refer to figures and tables that might be appended or linked.
 
-## 6. Discussion
+## 7. Discussion
 
 Interpret results, limitations, and implications for political science and policy.
 
-## 7. Conclusion
+## 8. Conclusion
 
 Concise summary and suggestions for future work.
 
