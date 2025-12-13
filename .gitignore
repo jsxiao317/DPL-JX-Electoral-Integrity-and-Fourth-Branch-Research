@@ -1,13 +1,11 @@
 # Raw data
 data/raw/
-
-# Large CSVs
 *.csv
 
-# R junk
+# RStudio / R
 .Rhistory
-.RData
 .Rproj.user/
+.RData
 
-# OS files
+# OS junk
 .DS_Store
