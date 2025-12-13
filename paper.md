@@ -2,8 +2,7 @@
 
 **Diego Paz Linares Researcher** (Brighton College UK)  
 **James Xiao Researcher** (Brighton College UK)
-
-**Adam Burns Research Mentor** 
+**Adam Burns Mentor** (Brighton College UK)
 
 **Date:** 2025-10-27  
 **Version:** Draft (paper.md)  
