@@ -2,6 +2,7 @@
 
 **Diego Paz Linares Researcher** (Brighton College UK)  
 **James Xiao Researcher** (Brighton College UK)
+
 **Adam Burns Research Mentor** 
 
 **Date:** 2025-10-27  
@@ -23,7 +24,7 @@ This study uses observational, cross-national data from Varieties of Democracy (
 
 Our paper posits that the institutionalisation of electoral integrity means as a functionally equivalent ‘fourth branch’ of government measurably depresses electoral fraud, cements legitimacy and conduces higher voter acceptance of election results. Conceptualised and taxonomised by Tushnet (2020) and Ackerman (2000), our ‘fourth branch’ synthesises Pal’s (2016) institutionalisation of electoral management bodies (EMBs) with Norris’s (2015) electoral cycle integrity theory to propose a constitutionally-sourced, publicly-anchored institution. It is continuous, transparent and autonomous from government – dedicated to preserving electoral integrity. 
 
-Responding to prior 'demandpside gaps', we assert that the institutional framework of the ‘fourth branch’ provides both supply-side and demand-side effects: the former bars direct electoral fraud by fostering a robust and transparent mechanism; the latter positively [goes out of the way to] strengthen perceptions of electoral legitimacy, eroding political capital for populist actors to push rhetorics and narratives of fraud.
+Responding to prior 'demand-side gaps', we assert that the institutional framework of the ‘fourth branch’ provides both supply-side and demand-side effects: the former bars direct electoral fraud by fostering a robust and transparent mechanism; the latter positively [goes out of the way to] strengthen perceptions of electoral legitimacy, eroding political capital for populist actors to push rhetorics and narratives of fraud.
 
 Equally, we normatively contend that an acting ‘fourth branch’, responsible for securing electoral integrity mechanisms, is foundationally crucial to the future function of liberal democracies. We cite the Bolivian Election of 2019 and 2025 and its parallels to the US 2020 Presidential Election, among other comparative scenarios in this paper, to evidence our prescription of a nuanced ‘fourth branch’ constitutional design. Indeed, this paper postulates and explores how an independent, civil, non-governmentally bound and nonpartisan institution reinforces the supply-side and demand-side empirical framework established.
 
