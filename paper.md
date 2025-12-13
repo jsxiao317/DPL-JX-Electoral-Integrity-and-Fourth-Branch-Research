@@ -1,7 +1,8 @@
 # Electoral Integrity and the Fourth Branch: Working Paper
 
-**Diego P. L. Researcher** (Institution A)  
-**James X. Researcher** (Institution B)  
+**Diego Paz Linares Researcher** (Brighton College UK)  
+**James Xiao Researcher** (Brighton College UK)
+**Adam Burns Research Mentor** 
 
 **Date:** 2025-10-27  
 **Version:** Draft (paper.md)  
