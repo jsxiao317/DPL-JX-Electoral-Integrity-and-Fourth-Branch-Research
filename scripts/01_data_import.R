@@ -2,4 +2,5 @@ rm(list = ls())
 
 cat("\014")
 
-setwd("/Users/yourname/Documents/ElectionsData")
+setwd("/Users/jamesxiao/Desktop/Electoral Management Research")
+
