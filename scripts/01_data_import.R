@@ -32,8 +32,8 @@ vdem <- read_csv(
 bad1 <- names(vdem)[2944]
 bad2 <- names(vdem)[2945]
 
-vdem[[bad1]] <- parse_double(vdem[[bad1]])
-vdem[[bad2]] <- parse_double(vdem[[bad2]])
+vdem[[bad1]] <- parse_double(as.character(vdem[[bad1]]))
+vdem[[bad2]] <- parse_double(as.character(vdem[[bad2]]))
 
 #---- sanity checks ----
 stopifnot(is.data.frame(nelda), is.data.frame(vdem))
