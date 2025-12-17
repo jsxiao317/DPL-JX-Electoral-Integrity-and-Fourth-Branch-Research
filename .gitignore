@@ -1,11 +1,28 @@
-# Ignore all generated outputs...
-output/*
+# ----------------------------
+# Raw + derived data (keep out of repo)
+# ----------------------------
+data/raw/
+data/derived/
+*.csv
 
-# ...but KEEP model tables tracked
+# ----------------------------
+# R / RStudio junk
+# ----------------------------
+.Rhistory
+.RData
+.Rproj.user/
+
+# ----------------------------
+# macOS junk
+# ----------------------------
+.DS_Store
+
+# ----------------------------
+# Outputs
+# Ignore everything in output/ EXCEPT the specific shareable results
+# ----------------------------
+output/*
 !output/tables/
 !output/tables/*.txt
-
-# ...and KEEP figures tracked (so plots sync across devices)
 !output/figures/
 !output/figures/*.png
-
