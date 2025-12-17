@@ -1,28 +1,31 @@
-# ----------------------------
-# Raw + derived data (keep out of repo)
-# ----------------------------
+# -------------------------
+# Data: do NOT commit
+# -------------------------
 data/raw/
 data/derived/
 *.csv
 
-# ----------------------------
-# R / RStudio junk
-# ----------------------------
+# -------------------------
+# R / RStudio
+# -------------------------
 .Rhistory
-.RData
 .Rproj.user/
+.RData
 
-# ----------------------------
-# macOS junk
-# ----------------------------
+# -------------------------
+# OS junk
+# -------------------------
 .DS_Store
 
-# ----------------------------
-# Outputs
-# Ignore everything in output/ EXCEPT the specific shareable results
-# ----------------------------
+# -------------------------
+# Outputs:
+# ignore everything in output/
+# BUT keep tables + figures tracked (so results sync)
+# -------------------------
 output/*
+
 !output/tables/
 !output/tables/*.txt
+
 !output/figures/
 !output/figures/*.png
