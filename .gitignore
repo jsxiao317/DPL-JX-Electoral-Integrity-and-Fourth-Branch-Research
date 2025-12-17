@@ -9,5 +9,9 @@ data/raw/
 
 # OS junk
 .DS_Store
-output/
-output/
+
+# Ignore all generated outputs...
+output/*
+# ...but keep regression tables tracked
+!output/tables/
+!output/tables/*.txt
