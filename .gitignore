@@ -9,3 +9,5 @@ data/raw/
 
 # OS junk
 .DS_Store
+output/
+output/
