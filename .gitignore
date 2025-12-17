@@ -1,17 +1,11 @@
-# Raw data
-data/raw/
-*.csv
-
-# RStudio / R
-.Rhistory
-.Rproj.user/
-.RData
-
-# OS junk
-.DS_Store
-
 # Ignore all generated outputs...
 output/*
-# ...but keep regression tables tracked
+
+# ...but KEEP model tables tracked
 !output/tables/
 !output/tables/*.txt
+
+# ...and KEEP figures tracked (so plots sync across devices)
+!output/figures/
+!output/figures/*.png
+
