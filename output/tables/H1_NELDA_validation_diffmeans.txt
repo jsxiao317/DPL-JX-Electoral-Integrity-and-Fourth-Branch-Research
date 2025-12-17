@@ -1,0 +1,5 @@
+# A tibble: 2 × 4
+  nelda_fraud     n mean_FraudIndex sd_FraudIndex
+        <int> <int>           <dbl>         <dbl>
+1           0  1666           0.216         0.459
+2           1  1113          -0.268         0.407
