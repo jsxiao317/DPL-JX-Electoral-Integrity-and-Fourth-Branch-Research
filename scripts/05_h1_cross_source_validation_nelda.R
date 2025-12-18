@@ -1,149 +1,237 @@
-rm(list = ls())
-cat("\014")
+# =============================================================================
+# 05_h1_cross_source_validation_nelda.R
+# Cross-source validation: V-Dem FraudIndex vs NELDA election fraud indicator
+# =============================================================================
 
-# ================================
-# H1 Cross-source validation:
-# Compare V-Dem FraudIndex against a NELDA fraud indicator
-# ================================
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(readr)
+  library(stringr)
+  library(tidyr)
+  library(ggplot2)
+  library(clubSandwich)
+})
 
-library(dplyr)
-library(readr)
-library(stringr)
-library(ggplot2)
+# ----------------------------
+# 0) User settings (EDIT HERE)
+# ----------------------------
 
-# -------------------------------
-# 1) Load V-Dem derived dataset (country-year)
-# -------------------------------
-h1 <- read_csv("data/derived/vdem_h1_country_year.csv", show_col_types = FALSE)
+# Which NELDA variable(s) should represent fraud?
+# Default based on your runs:
+fraud_cols <- c("nelda11")  # <-- change if you want a different NELDA fraud measure
 
-# Ensure key columns exist
-need <- c("ccode", "year", "FB_strength", "FraudIndex")
-missing_need <- setdiff(need, names(h1))
-if (length(missing_need) > 0) stop("Missing required columns in h1: ", paste(missing_need, collapse = ", "))
-
-# Force types safely
-h1 <- h1 %>%
-  mutate(
-    ccode = suppressWarnings(as.integer(ccode)),
-    year  = suppressWarnings(as.integer(year))
-  )
-
-# IMPORTANT: drop any rows with missing ccode/year and keep only election-coded obs
-h1_main <- h1 %>%
-  filter(!is.na(ccode), !is.na(year), !is.na(FB_strength), !is.na(FraudIndex))
-
-cat("Rows in h1:", nrow(h1), "\n")
-cat("Rows in h1_main (used for validation):", nrow(h1_main), "\n")
-cat("NA in ccode (should be 0):", sum(is.na(h1_main$ccode)), "\n")
-cat("NA in year  (should be 0):", sum(is.na(h1_main$year)), "\n\n")
-
-# -------------------------------
-# 2) Load NELDA (it is tab-delimited even if named .csv)
-#    Force everything to character to avoid parsing warnings.
-# -------------------------------
+# Where is the raw NELDA file in your repo?
 nelda_path <- file.path("data", "raw", "NELDA.csv")
 
-nelda <- read_tsv(
+# Output paths
+derived_out <- file.path("data", "derived", "h1_with_nelda_validation.csv")
+table_diff_out <- file.path("output", "tables", "H1_NELDA_validation_diffmeans.txt")
+table_model_out <- file.path("output", "tables", "H1_NELDA_validation_model.txt")
+fig_out <- file.path("output", "figures", "H1_validation_VDem_vs_NELDA_boxjitter.png")
+
+# ----------------------------
+# 1) Ensure required objects exist
+# ----------------------------
+
+if (!exists("h1") || !exists("h1_main")) {
+  message("`h1` and/or `h1_main` not found. Sourcing scripts/01_data_import.R ...")
+  if (!file.exists(file.path("scripts", "01_data_import.R"))) {
+    stop("Could not find scripts/01_data_import.R. Run data import first.")
+  }
+  source(file.path("scripts", "01_data_import.R"))
+}
+
+if (!("ccode" %in% names(h1_main))) stop("`h1_main` must contain a `ccode` column.")
+if (!("year"  %in% names(h1_main))) stop("`h1_main` must contain a `year` column.")
+if (!("FraudIndex" %in% names(h1_main))) stop("`h1_main` must contain `FraudIndex`.")
+
+# Print basic diagnostics (matches your console style)
+message(sprintf("Rows in h1: %d", nrow(h1)))
+message(sprintf("Rows in h1_main (used for validation): %d", nrow(h1_main)))
+message(sprintf("NA in ccode (should be 0): %d", sum(is.na(h1_main$ccode))))
+message(sprintf("NA in year  (should be 0): %d", sum(is.na(h1_main$year))))
+
+# ----------------------------
+# 2) Load NELDA
+# ----------------------------
+
+if (!file.exists(nelda_path)) {
+  stop(sprintf("NELDA file not found at: %s\nPut it in data/raw/ (or update nelda_path).", nelda_path))
+}
+
+# NELDA is often tab-delimited even when named .csv
+nelda <- read_delim(
   nelda_path,
-  show_col_types = FALSE,
-  col_types = cols(.default = col_character())
+  delim = "\t",
+  col_types = cols(.default = col_character()),
+  na = c("", "NA", "N/A"),
+  guess_max = 20000,
+  show_col_types = FALSE
 )
 
-# Sanity checks
-cat("NELDA rows:", nrow(nelda), " cols:", ncol(nelda), "\n")
-cat("Has ccode?  ", "ccode" %in% names(nelda), "\n")
-cat("Has year?   ", "year"  %in% names(nelda), "\n\n")
+# Lowercase names to be safe
+names(nelda) <- tolower(names(nelda))
 
-if (!("ccode" %in% names(nelda))) stop("Could not find ccode column in NELDA.")
-if (!("year"  %in% names(nelda))) stop("Could not find year column in NELDA.")
+# Convert key merge columns
+# (NELDA ccode/year sometimes read as character)
+if ("ccode" %in% names(nelda)) nelda <- nelda %>% mutate(ccode = suppressWarnings(as.numeric(ccode)))
+if ("year"  %in% names(nelda)) nelda <- nelda %>% mutate(year  = suppressWarnings(as.integer(year)))
 
-nelda <- nelda %>%
+message(sprintf("\nNELDA rows: %d  cols: %d", nrow(nelda), ncol(nelda)))
+message(sprintf("Has ccode?   %s", "ccode" %in% names(nelda)))
+message(sprintf("Has year?    %s", "year"  %in% names(nelda)))
+
+# Parsing problems (informative, but not fatal)
+nelda_probs <- problems(nelda)
+if (nrow(nelda_probs) > 0) {
+  message("\nWARNING: NELDA parsing issues found. Showing first 10:")
+  print(head(nelda_probs, 10))
+}
+
+# ----------------------------
+# 3) Choose / validate fraud columns
+# ----------------------------
+
+missing_fraud_cols <- setdiff(tolower(fraud_cols), names(nelda))
+if (length(missing_fraud_cols) > 0) {
+  # Help user: print likely candidates
+  possible <- names(nelda)[str_detect(names(nelda), "^nelda\\d+$")]
+  message("\nPossible NELDA nelda# columns found (first 60 shown):")
+  print(head(possible, 60))
+  stop(sprintf(
+    "STOP: `fraud_cols` contains columns not in NELDA: %s\nEdit fraud_cols at the top of this script and re-run.",
+    paste(missing_fraud_cols, collapse = ", ")
+  ))
+}
+
+message(sprintf("\nUsing NELDA fraud column(s): %s", paste(fraud_cols, collapse = ", ")))
+
+# Helper to convert yes/no/1/0/TRUE/FALSE to 1/0 (else NA)
+as_01 <- function(x) {
+  x <- tolower(trimws(as.character(x)))
+  dplyr::case_when(
+    x %in% c("1", "true", "t", "yes", "y") ~ 1L,
+    x %in% c("0", "false", "f", "no",  "n") ~ 0L,
+    TRUE ~ NA_integer_
+  )
+}
+
+nelda_fraud_df <- nelda %>%
+  mutate(across(all_of(fraud_cols), as_01)) %>%
   mutate(
-    ccode = suppressWarnings(as.integer(ccode)),
+    nelda_fraud = case_when(
+      # if ALL are NA -> NA
+      if_all(all_of(fraud_cols), ~ is.na(.x)) ~ NA_integer_,
+      # if ANY equals 1 -> 1
+      if_any(all_of(fraud_cols), ~ .x == 1L) ~ 1L,
+      # otherwise -> 0
+      TRUE ~ 0L
+    )
+  ) %>%
+  select(ccode, year, country = any_of("country"), nelda_fraud) %>%
+  distinct()
+
+# ----------------------------
+# 4) Merge onto h1_main
+# ----------------------------
+
+# Ensure h1_main types
+h1_main <- h1_main %>%
+  mutate(
+    ccode = suppressWarnings(as.numeric(ccode)),
     year  = suppressWarnings(as.integer(year))
   )
 
-# -------------------------------
-# 3) Choose NELDA fraud indicator
-#    You already selected nelda11 and it worked, so we lock it in.
-# -------------------------------
-fraud_cols <- c("nelda11")
-missing_fraud <- setdiff(fraud_cols, names(nelda))
-if (length(missing_fraud) > 0) stop("NELDA fraud column not found: ", paste(missing_fraud, collapse = ", "))
-
-cat("Using NELDA fraud column(s):", paste(fraud_cols, collapse = ", "), "\n\n")
-
-# Convert nelda11 to 0/1:
-# NELDA often stores yes/no; we treat "yes" (case-insensitive) as 1 and "no" as 0.
-nelda <- nelda %>%
-  mutate(
-    nelda_fraud = case_when(
-      str_to_lower(.data[[fraud_cols[1]]]) == "yes" ~ 1L,
-      str_to_lower(.data[[fraud_cols[1]]]) == "no"  ~ 0L,
-      TRUE ~ NA_integer_
-    )
-  )
-
-# -------------------------------
-# 4) Merge: V-Dem country-year with NELDA election-year fraud indicator
-# -------------------------------
 merged <- h1_main %>%
-  left_join(nelda %>% select(ccode, year, nelda_fraud), by = c("ccode", "year"))
+  left_join(nelda_fraud_df, by = c("ccode", "year"))
 
-cat("Merged rows:", nrow(merged), "\n")
-cat("NELDA matched (non-NA nelda_fraud):", sum(!is.na(merged$nelda_fraud)), "\n\n")
+message(sprintf("\nMerged rows: %d", nrow(merged)))
+message(sprintf("NELDA matched (non-NA nelda_fraud): %d", sum(!is.na(merged$nelda_fraud))))
 
-# -------------------------------
-# 5) Validation outputs
-#    (A) Difference in FraudIndex by NELDA fraud
-# -------------------------------
-diffmeans <- merged %>%
-  filter(!is.na(nelda_fraud)) %>%
+# Create country_name if missing (prevents your “country_name doesn’t exist” error)
+if (!("country_name" %in% names(merged))) {
+  if ("country" %in% names(merged)) {
+    merged <- merged %>% mutate(country_name = country)
+  } else {
+    merged <- merged %>% mutate(country_name = NA_character_)
+  }
+}
+
+# Save merged dataset (derived)
+dir.create(dirname(derived_out), recursive = TRUE, showWarnings = FALSE)
+write_csv(merged, derived_out)
+
+# ----------------------------
+# 5) Diff-in-means table
+# ----------------------------
+
+diff_tbl <- merged %>%
+  filter(!is.na(nelda_fraud), !is.na(FraudIndex)) %>%
   group_by(nelda_fraud) %>%
   summarise(
     n = n(),
-    mean_FraudIndex = mean(FraudIndex, na.rm = TRUE),
-    sd_FraudIndex   = sd(FraudIndex, na.rm = TRUE),
+    mean_FraudIndex = mean(FraudIndex),
+    sd_FraudIndex = sd(FraudIndex),
     .groups = "drop"
   )
 
-cat("Difference in FraudIndex by NELDA fraud indicator:\n")
-print(diffmeans)
-cat("\n")
+message("\nDifference in FraudIndex by NELDA fraud indicator:")
+print(diff_tbl)
 
-# (B) Simple validation regression with year FE
-m_val <- lm(FraudIndex ~ nelda_fraud + factor(year),
-            data = merged %>% filter(!is.na(nelda_fraud)))
+dir.create(dirname(table_diff_out), recursive = TRUE, showWarnings = FALSE)
+capture.output(diff_tbl, file = table_diff_out)
 
-cat("Validation model (FraudIndex ~ NELDA fraud + year FE):\n")
-print(summary(m_val)$coefficients)
-cat("\n")
+# ----------------------------
+# 6) Validation regression with CR2 clustered SEs
+#    FraudIndex ~ nelda_fraud + year FE
+# ----------------------------
 
-# -------------------------------
-# 6) Save merged data + tables + figure
-# -------------------------------
-dir.create("data/derived", showWarnings = FALSE, recursive = TRUE)
-dir.create("output/tables", showWarnings = FALSE, recursive = TRUE)
-dir.create("output/figures", showWarnings = FALSE, recursive = TRUE)
+val_dat <- merged %>%
+  filter(!is.na(nelda_fraud), !is.na(FraudIndex), !is.na(year), !is.na(ccode))
 
-write_csv(merged, "data/derived/h1_with_nelda_validation.csv")
+val_mod <- lm(FraudIndex ~ nelda_fraud + factor(year), data = val_dat)
 
-writeLines(capture.output(diffmeans), "output/tables/H1_NELDA_validation_diffmeans.txt")
-writeLines(capture.output(summary(m_val)), "output/tables/H1_NELDA_validation_model.txt")
+# CR2 variance, clustered by country code (ccode)
+V_cr2 <- vcovCR(val_mod, cluster = val_dat$ccode, type = "CR2")
+ct <- coef_test(val_mod, vcov = V_cr2, test = "Satterthwaite")
 
-p <- merged %>%
-  filter(!is.na(nelda_fraud)) %>%
-  mutate(nelda_fraud = factor(nelda_fraud, levels = c(0,1), labels = c("NELDA: No fraud", "NELDA: Fraud"))) %>%
-  ggplot(aes(x = nelda_fraud, y = FraudIndex)) +
+message("\nValidation model (FraudIndex ~ NELDA fraud + year FE) [CR2 clustered by ccode]:")
+print(ct)
+
+dir.create(dirname(table_model_out), recursive = TRUE, showWarnings = FALSE)
+capture.output(ct, file = table_model_out)
+
+# ----------------------------
+# 7) Figure: V-Dem FraudIndex by NELDA fraud
+# ----------------------------
+
+plot_dat <- val_dat %>%
+  mutate(nelda_fraud = factor(nelda_fraud, levels = c(0, 1), labels = c("NELDA: No fraud", "NELDA: Fraud")))
+
+p <- ggplot(plot_dat, aes(x = nelda_fraud, y = FraudIndex)) +
   geom_boxplot(outlier.shape = NA) +
-  geom_jitter(width = 0.15, alpha = 0.25) +
-  labs(x = NULL, y = "V-Dem FraudIndex", title = "Cross-source validation: V-Dem FraudIndex vs NELDA fraud (nelda11)") +
-  theme_minimal()
+  geom_jitter(width = 0.18, alpha = 0.25, size = 0.9) +
+  labs(
+    x = NULL,
+    y = "V-Dem FraudIndex",
+    title = "Cross-source validation: V-Dem FraudIndex vs NELDA fraud indicator"
+  ) +
+  theme_minimal(base_size = 12)
 
-ggsave("output/figures/H1_validation_VDem_vs_NELDA_boxjitter.png", p, width = 8, height = 5, dpi = 300)
+dir.create(dirname(fig_out), recursive = TRUE, showWarnings = FALSE)
+ggsave(fig_out, p, width = 9, height = 5, dpi = 300)
 
-cat("Saved:\n")
-cat("- data/derived/h1_with_nelda_validation.csv\n")
-cat("- output/tables/H1_NELDA_validation_diffmeans.txt\n")
-cat("- output/tables/H1_NELDA_validation_model.txt\n")
-cat("- output/figures/H1_validation_VDem_vs_NELDA_boxjitter.png\n")
+message("\nSaved:")
+message(paste0("- ", derived_out))
+message(paste0("- ", table_diff_out))
+message(paste0("- ", table_model_out))
+message(paste0("- ", fig_out))
+
+# =============================================================================
+# Notes:
+# - If you ever see: "object 'nelda_path' not found", it means you were NOT
+#   running this full script version (or the variable got removed). This file
+#   defines nelda_path at the top.
+# - Don't run `git status` inside the R console. Run it in Terminal.
+# =============================================================================
+
