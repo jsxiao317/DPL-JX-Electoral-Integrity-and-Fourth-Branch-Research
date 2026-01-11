@@ -1,0 +1,29 @@
+        part        term     statistic      TWFE TWFE (lag1) TWFE (lead1 placebo)
+1  estimates FB_strength      estimate  0.264***                                 
+2  estimates FB_strength ({std.error})   (0.047)                                 
+3  estimates       FB_l1      estimate              0.259***                     
+4  estimates       FB_l1 ({std.error})               (0.046)                     
+5  estimates       FB_f1      estimate                                   0.261***
+6  estimates       FB_f1 ({std.error})                                    (0.046)
+7        gof    Num.Obs.                   15360       15171                15171
+8        gof          R2                   0.690       0.692                0.689
+9        gof        RMSE                    0.27        0.27                 0.27
+10       gof  Std.Errors               by: ccode   by: ccode            by: ccode
+[1] "\n\n--- Binned FB_strength (quintiles), TWFE ---\n"
+                            m_bins
+Dependent Var.:         FraudIndex
+                                  
+FB_bin = 2         0.0801 (0.0519)
+FB_bin = 3        0.1235. (0.0703)
+FB_bin = 4      0.2962*** (0.0737)
+FB_bin = 5      0.6574*** (0.1097)
+Fixed-Effects:  ------------------
+ccode                          Yes
+year                           Yes
+_______________ __________________
+S.E.: Clustered          by: ccode
+Observations                15,360
+R2                         0.70020
+Within R2                  0.14414
+---
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
